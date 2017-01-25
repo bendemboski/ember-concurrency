@@ -138,6 +138,7 @@ export const Task = Ember.Object.extend(TaskStateMixin, {
   context: null,
   _observes: null,
   _curryArgs: null,
+  _appContext: null,
 
   init() {
     this._super(...arguments);
@@ -174,6 +175,7 @@ export const Task = Ember.Object.extend(TaskStateMixin, {
       _scheduler: this._scheduler,
       _propertyName: this._propertyName,
       _debugCallback: this._debugCallback,
+      _appContext: Ember.copy(this._appContext, true),
     });
   },
 
@@ -379,6 +381,7 @@ export function TaskProperty(...decorators) {
       //_performsPath,
       _propertyName,
       _debugCallback: tp._debugCallback,
+      _appContext: Ember.copy(tp._appContext, true),
     });
   });
 
