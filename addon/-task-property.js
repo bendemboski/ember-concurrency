@@ -166,7 +166,7 @@ export const Task = Ember.Object.extend(TaskStateMixin, {
   },
 
   _clone() {
-    return Task.create({
+    return this._cloneTask({
       fn: this.fn,
       context: this.context,
       _origin: this._origin,
@@ -175,6 +175,10 @@ export const Task = Ember.Object.extend(TaskStateMixin, {
       _propertyName: this._propertyName,
       _debugCallback: this._debugCallback,
     });
+  },
+
+  _cloneTask(props) {
+    return Task.create(props);
   },
 
   /**
@@ -370,7 +374,7 @@ export function TaskProperty(...decorators) {
 
   let tp = this;
   _ComputedProperty.call(this, function(_propertyName) {
-    return Task.create({
+    return tp.makeTask({
       fn: taskFn,
       context: this,
       _origin: this,
@@ -416,6 +420,10 @@ objectAssign(TaskProperty.prototype, propertyModifiers, {
     registerOnPrototype(Ember.addListener, proto, this.eventNames, taskName, '_perform', false);
     registerOnPrototype(Ember.addListener, proto, this.cancelEventNames, taskName, 'cancelAll', false);
     registerOnPrototype(Ember.addObserver, proto, this._observes, taskName, '_perform', true);
+  },
+
+  makeTask(props) {
+    return Task.create(props);
   },
 
   /**
