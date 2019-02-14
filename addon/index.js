@@ -55,11 +55,17 @@ import { resolveScheduler } from './-property-modifiers-mixin';
  * @returns {TaskProperty}
  */
 export function task(taskFn) {
+  let taskFnWrappers = [];
+
   let tp = function() {
     let cp = computed(function(_propertyName) {
       taskFn.displayName = `${_propertyName} (task)`;
       return Task.create({
-        fn: taskFn,
+        fn: taskFnWrappers.reduce((fn, wrapper) => {
+          return function* (...args) {
+            return yield* wrapper(fn.bind(this, ...args));
+          };
+        }, taskFn),
         context: this,
         _origin: this,
         _taskGroupPath: tp._taskGroupPath,
@@ -122,6 +128,9 @@ export function task(taskFn) {
 
   Object.setPrototypeOf(tp, TaskProperty.prototype);
   Ember._setComputedDecorator(tp);
+  Object.defineProperty(tp, 'registerWrapper', {
+    value: (wrapper) => taskFnWrappers.push(wrapper)
+  });
 
   return tp;
 }
